@@ -1,4 +1,110 @@
-.App {
+.app {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  padding-top: 16px;
+  justify-content: center;
+  font-family: Arial, sans-serif;
+}
+
+.app .container {
+  width: 100%;
+  max-width: 540px;
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+.app .container form {
+  width: 100%;
+  max-width: 540px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.app .container form label {
+  font-weight: 600;
+  color: #3b3b3b;
+}
+
+.app .container form input {
+  width: 100%;
+  margin-top: 6px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 8px;
+  padding-right: 8px;
+  border: 0;
+  border-radius: 6px;
+  background-color: #ededed;
+}
+
+.app .container form button {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  width: 100%;
+  border: 0;
+  border-radius: 6px;
+  color: #ffffff;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.app .container h2 {
+  width: 100%;
+}
+
+.app .container .loading {
+  display: flex;
+}
+
+.app .container .loading span {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.app .container .list-item {
+  margin-top: -10px;
+  width: 100%;
+  background-color: #f0f0f0;
+  border-radius: 6px;
+  padding-top: 16px;
+  padding-bottom: 16px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.app .container .list-item .activity {
+  font-weight: 600;
+  font-size: 18px;
+  margin-left: 10px;
+  margin-right: 10px;
+  width: 100%;
+}
+
+.app .container .list-item .date {
+  margin-left: 10px;
+  margin-right: 10px;
+  width: 100%;
+  color: #5e5e5e;
+  margin-top: 2px;
+}
+
+.app .container .list-item .edit {
+  margin-left: 10px;
+  color: #eb9834;
+  margin-top: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.app .container .list-item .delete {
+  margin-left: 10px;
+  color: #eb3d34;
+  margin-top: 8px;
+  font-weight: 700;
+}
+/* .App {
   text-align: center;
 }
 
@@ -35,4 +141,4 @@
   to {
     transform: rotate(360deg);
   }
-}
+} */
