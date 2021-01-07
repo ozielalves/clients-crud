@@ -1,14 +1,16 @@
 import React from "react";
 import { Route, BrowserRouter } from "react-router-dom";
 
-import Dashboard from "../components/Dashboard";
-import BiForm from "../components/BiForm";
+import Dashboard from "../pages/Dashboard";
+import ClientRegister from "../pages/Client/Register";
+import ClientsList from "../pages/Client";
 
 const Routes = () => {
   return (
     <BrowserRouter>
       <Route component={Dashboard} path="/" exact />
-      <Route component={BiForm} path="/client/register" />
+      <Route component={ClientRegister} path="/client/register" />
+      <Route component={ClientsList} path="/clients" />
     </BrowserRouter>
   );
 };

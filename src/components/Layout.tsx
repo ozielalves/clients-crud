@@ -7,7 +7,7 @@ import Drawer from "@material-ui/core/Drawer";
 import { AppBar, Divider, IconButton, Toolbar } from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import { MainListItems } from "./listItems";
+import { MainListItems } from "./MainListItems";
 
 const drawerWidth = 240;
 
@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
   toolbar: {
     paddingRight: 24, // keep right padding when drawer closed
     background:
-      "linear-gradient(90deg, rgba(149,203,149,1) 62%, rgba(48,107,48,1) 100%)",
+      "linear-gradient(90deg, rgb(38,166,154,1) 62%, rgb(0,77,64,1) 100%)",
   },
   toolbarIcon: {
     display: "flex",

@@ -34,7 +34,7 @@ export const all = async (): Promise<Array<Client>> => {
 // create a client
 export const create = async (client: Client): Promise<Client> => {
   const docRef = await db.collection(COLLECTION_NAME).add(client);
-
+  
   // return new created client
   return {
     id: docRef.id,

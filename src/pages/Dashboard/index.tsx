@@ -7,10 +7,10 @@ import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
 import Link from "@material-ui/core/Link";
-import Chart from "./Chart";
-import Deposits from "./Deposits";
-import Sales from "./Sales";
-import Layout from "./Layout";
+import Chart from "../../components/Chart";
+import Deposits from "../../components/Deposits";
+import Sales from "../../components/Sales";
+import Layout from "../../components/Layout";
 
 function Copyright() {
   return (
@@ -18,7 +18,8 @@ function Copyright() {
       {"Made with ❤ by "}
       <Link color="inherit" href="https://github.com/ozielalves/">
         Oziel Alves
-      </Link>{" - "}
+      </Link>
+      {" - "}
       {new Date().getFullYear()}
       {"."}
     </Typography>
@@ -53,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "center",
     paddingTop: "60px",
-  }
+  },
 }));
 
 export default function Dashboard() {
@@ -67,6 +68,11 @@ export default function Dashboard() {
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
         <Container maxWidth="lg" className={classes.container}>
+          <Grid style={{paddingBottom: 12}} container>
+            <Typography variant="h4" color="primary" align="left">
+              Dashboard
+            </Typography>
+          </Grid>
           <Grid container spacing={3}>
             {/* Chart */}
             <Grid item xs={12} md={8} lg={9}>

@@ -62,7 +62,7 @@ export default function Chart() {
           <Line
             type="monotone"
             dataKey="amount"
-            stroke={"green"}
+            stroke={"rgb(38,166,154,1)"}
             dot={false}
           />
         </LineChart>
