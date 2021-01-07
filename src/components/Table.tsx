@@ -13,9 +13,10 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
 
 interface ITable {
-  dataToDisplay: any;
-  handleDeleteClient?: React.Dispatch<React.SetStateAction<string | undefined>>;
-  handleEditClient?: React.Dispatch<React.SetStateAction<string | undefined>>;
+  dataClients?: any;
+  dataSales?: any;
+  handleDelete: React.Dispatch<React.SetStateAction<string | undefined>>;
+  handleEdit: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
 interface ClientColumn {
@@ -32,8 +33,22 @@ interface ClientColumn {
   align?: "right";
   format?: (value: number) => string;
 }
+interface SaleColumn {
+  id:
+    | "date"
+    | "clientName"
+    | "company"
+    | "description"
+    | "value"
+    | "editButtonID"
+    | "deleteButtonID";
+  label: string;
+  minWidth?: number;
+  align?: "right";
+  format?: (value: number) => string;
+}
 
-const columns: ClientColumn[] = [
+const clientColumns: ClientColumn[] = [
   { id: "name", label: "Name", minWidth: 170 },
   { id: "email", label: "Email", minWidth: 170 },
   {
@@ -64,6 +79,36 @@ const columns: ClientColumn[] = [
   { id: "deleteButtonID", label: "", minWidth: 10 },
 ];
 
+const saleColumns: SaleColumn[] = [
+  { id: "date", label: "Date", minWidth: 170 },
+  { id: "clientName", label: "Client", minWidth: 170 },
+  {
+    id: "company",
+    label: "Company",
+    minWidth: 170,
+  },
+  {
+    id: "description",
+    label: "Description",
+    minWidth: 170,
+    align: "right",
+  },
+  {
+    id: "value",
+    label: "Amount\u00a0($)",
+    minWidth: 60,
+    align: "right",
+    format: (value: number) => value.toFixed(2),
+  },
+  {
+    id: "editButtonID",
+    label: "",
+    minWidth: 10,
+    align: "right",
+  },
+  { id: "deleteButtonID", label: "", minWidth: 10 },
+];
+
 interface ClientData {
   name: string;
   email: string;
@@ -73,6 +118,16 @@ interface ClientData {
   editButtonID: string;
   deleteButtonID: string;
 }
+interface SaleData {
+  date: Date;
+  clientName: string;
+  company: string;
+  description: string;
+  value: number;
+  editButtonID: string;
+  deleteButtonID: string;
+}
+
 
 function createClientData(
   firstname: string,
@@ -95,6 +150,27 @@ function createClientData(
   };
 }
 
+function createSaleData(
+  firstname: string,
+  lastname: string,
+  company: string,
+  date: string,
+  description: string,
+  value: number,
+  editButtonID: string,
+  deleteButtonID: string
+): SaleData {
+  return {
+    date: new Date(date),
+    clientName: `${firstname} ${lastname}`,
+    company,
+    description,
+    value,
+    editButtonID,
+    deleteButtonID,
+  };
+}
+
 const useStyles = makeStyles({
   root: {
     width: "100%",
@@ -105,16 +181,17 @@ const useStyles = makeStyles({
 });
 
 const StickyHeadTable = ({
-  dataToDisplay,
-  handleDeleteClient,
-  handleEditClient,
+  dataClients, 
+  dataSales,
+  handleDelete,
+  handleEdit,
 }: ITable) => {
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(7);
-  
+
   // Create the array of objects to be displayed
-  const rowsToSort = dataToDisplay.map((item: any) => {
+  const clientRowsToSort = dataClients ? dataClients.map((item: any) => {
     return createClientData(
       item.firstname,
       item.lastname,
@@ -125,13 +202,32 @@ const StickyHeadTable = ({
       `e ${item.id}`,
       `d ${item.id}`
     );
-  });
+  }) : null;
+
+  const saleRowsToSort = dataSales ? dataSales.map((item: any) => {
+    return createSaleData(
+      item.firstname,
+      item.lastname,
+      item.company,
+      item.date,
+      item.description,
+      item.value,
+      `e ${item.id}`,
+      `d ${item.id}`
+    );
+  }): null;
 
   // Sorts the array in alphabetical order based on the key names
-  const rows = rowsToSort.sort((a: any,b: any) => (a.last_nom > b.last_nom) ? 1 : ((b.last_nom > a.last_nom) ? -1 : 0)); 
+  const clientRows = clientRowsToSort && clientRowsToSort.sort((a: any, b: any) =>
+    a.name > b.name ? 1 : b.name > a.name ? -1 : 0
+  );
 
-  console.log("ROW: ", rows); // PRINT
-  console.log("Data CLients on Table: ", dataToDisplay); // PRINT
+  const saleRows = saleRowsToSort && saleRowsToSort.sort((a: any, b: any) =>
+    a.date > b.date ? 1 : b.date > a.date ? -1 : 0
+  );
+
+  console.log("ROW: ", clientRows); // PRINT
+  console.log("Data CLients on Table: ", dataClients); // PRINT
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -150,7 +246,7 @@ const StickyHeadTable = ({
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
-              {columns.map((column) => (
+              {dataClients ? clientColumns.map((column) => (
                 <TableCell
                   key={column.id}
                   align={column.align}
@@ -158,16 +254,25 @@ const StickyHeadTable = ({
                 >
                   {column.label}
                 </TableCell>
-              ))}
+              )) : null}
+              {dataSales ? saleColumns.map((column) => (
+                <TableCell
+                  key={column.id}
+                  align={column.align}
+                  style={{ minWidth: column.minWidth }}
+                >
+                  {column.label}
+                </TableCell>
+              )) : null}
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows
+            {dataClients ? clientRows
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row: any) => {
                 return (
                   <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
-                    {columns.map((column) => {
+                    {clientColumns.map((column) => {
                       const value = row[column.id];
                       return (
                         <TableCell key={column.id} align={column.align}>
@@ -176,10 +281,7 @@ const StickyHeadTable = ({
                           ) : typeof value === "string" &&
                             value.split(" ")[0] === "e" ? ( // Client's ID (Edit trigger)
                             <IconButton
-                              onClick={() =>
-                                handleEditClient &&
-                                handleEditClient(value.split(" ")[1])
-                              }
+                              onClick={() => handleEdit(value.split(" ")[1])}
                               color="primary"
                               aria-label="edit client"
                               component="span"
@@ -190,10 +292,7 @@ const StickyHeadTable = ({
                           ) : typeof value === "string" &&
                             value.split(" ")[0] === "d" ? ( // Client's ID (Delete trigger)
                             <IconButton
-                              onClick={() =>
-                                handleDeleteClient &&
-                                handleDeleteClient(value.split(" ")[1])
-                              }
+                              onClick={() => handleDelete(value.split(" ")[1])}
                               color="primary"
                               aria-label="delete client"
                               component="span"
@@ -209,14 +308,56 @@ const StickyHeadTable = ({
                     })}
                   </TableRow>
                 );
-              })}
+              }) : null }
+            {dataSales ? saleRows
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map((row: any) => {
+                return (
+                  <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
+                    {saleColumns.map((column) => {
+                      const value = row[column.id];
+                      return (
+                        <TableCell key={column.id} align={column.align}>
+                          {column.format && typeof value === "number" ? (
+                            column.format(value)
+                          ) : typeof value === "string" &&
+                            value.split(" ")[0] === "e" ? ( // Client's ID (Edit trigger)
+                            <IconButton
+                              onClick={() => handleEdit(value.split(" ")[1])}
+                              color="primary"
+                              aria-label="edit sale"
+                              component="span"
+                              style={{ padding: "5px" }}
+                            >
+                              <EditIcon />
+                            </IconButton>
+                          ) : typeof value === "string" &&
+                            value.split(" ")[0] === "d" ? ( // Client's ID (Delete trigger)
+                            <IconButton
+                              onClick={() => handleDelete(value.split(" ")[1])}
+                              color="primary"
+                              aria-label="delete sale"
+                              component="span"
+                              style={{ padding: "5px" }}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          ) : (
+                            value
+                          )}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                );
+              }) : null }
           </TableBody>
         </Table>
       </TableContainer>
       <TablePagination
         rowsPerPageOptions={[7, 14, 28, 56]}
         component="div"
-        count={rows.length}
+        count={dataClients ? clientRows.length : saleRows.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onChangePage={handleChangePage}

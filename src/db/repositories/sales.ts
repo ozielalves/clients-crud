@@ -8,8 +8,9 @@ const COLLECTION_NAME = "sales";
 export type Sale = {
   id?: string;
   date: Date;
-  sale: string;
+  description: string;
   value: number;
+  clientId: string;
 };
 
 // retrieve all sales

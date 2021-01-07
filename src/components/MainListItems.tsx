@@ -22,7 +22,7 @@ export const MainListItems = () => {
           <ListItemText primary="Dashboard" />
         </ListItem>
       </ThemeLink>
-      <ThemeLink to="/">
+      <ThemeLink to="/sale/register">
         <ListItem button>
           <ThemeListIcon>
             <AddShoppingCartIcon />
@@ -30,7 +30,7 @@ export const MainListItems = () => {
           <ListItemText primary="New Sale" />
         </ListItem>
       </ThemeLink>
-      <ThemeLink to="/">
+      <ThemeLink to="/sales">
         <ListItem button>
           <ThemeListIcon>
             <ShoppingCartIcon />

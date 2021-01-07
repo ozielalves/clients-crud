@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@material-ui/core";
 
-import * as client from "../../db/repositories/clients";
+import * as sale from "../../db/repositories/sales";
 import DeleteModal from "../../components/DeleteModal";
 import EditModal from "../../components/EditModal";
 
@@ -44,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ClientsList() {
+export default function SalesList() {
   const classes = useStyles();
 
   // Modal Controllers
@@ -53,77 +53,75 @@ export default function ClientsList() {
 
   // Some needed states
   const [refresh, setRefresh] = useState(true);
-  const [clientDataToDelete, setClientDataToDelete] = useState<client.Client>();
-  const [clientDataToEdit, setClientDataToEdit] = useState<client.Client>();
-  const [clientToDeleteID, setClientToDeleteID] = useState<string>();
-  const [clientToEditID, setClientToEditID] = useState<string>();
-  const [clients, setClients] = useState<Array<client.Client>>([]);
+  const [saleDataToDelete, setSaleDataToDelete] = useState<sale.Sale>();
+  const [saleDataToEdit, setSaleDataToEdit] = useState<sale.Sale>();
+  const [saleToDeleteID, setSaleToDeleteID] = useState<string>();
+  const [saleToEditID, setSaleToEditID] = useState<string>();
+  const [sales, setSales] = useState<Array<sale.Sale>>([]);
 
-  // Fetch all clients when refresh or when the component mount
+  // Fetch all sales when refresh or when the component mount
   useEffect(() => {
-    fetchClients();
+    fetchSales();
     setRefresh(false);
   }, [refresh]);
 
   console.log("OPEN DEL MODAL: ", openDeleteModal); // PRINT
 
-  // Set Client's data to be deleted
+  // Set Sale's data to be deleted
   useEffect(() => {
-    if (clientToDeleteID) {
-      setClientDataToDelete(
-        clients.filter((client) => client.id === clientToDeleteID)[0]
+    if (saleToDeleteID) {
+      setSaleDataToDelete(
+        sales.filter((sale) => sale.id === saleToDeleteID)[0]
       );
       setOpenDeleteModal(true);
     }
-  }, [clientToDeleteID, setClientDataToDelete, clients]);
+  }, [saleToDeleteID, setSaleDataToDelete, sales]);
 
-  // Set Client's data to be edited
+  // Set Sale's data to be edited
   useEffect(() => {
-    if (clientToEditID) {
-      setClientDataToEdit(
-        clients.filter((client) => client.id === clientToEditID)[0]
-      );
+    if (saleToEditID) {
+      setSaleDataToEdit(sales.filter((sale) => sale.id === saleToEditID)[0]);
       setOpenEditModal(true);
     }
-  }, [clientToEditID, setClientDataToEdit, clients]);
+  }, [saleToEditID, setSaleDataToEdit, sales]);
 
-  async function fetchClients() {
-    // Clean the clients array first
-    setClients([]);
+  async function fetchSales() {
+    // Clean the sales array first
+    setSales([]);
 
-    // Fetch clients from repository
-    const _clients = await client.all();
+    // Fetch sales from repository
+    const _sales = await sale.all();
 
-    console.log("CLIENTS DATA: ", typeof _clients); // PRINT
-    // Set clients to state
-    setClients(_clients);
+    console.log("SALES DATA: ", typeof _sales); // PRINT
+    // Set sales to state
+    setSales(_sales);
   }
 
   const remove = async (id: string) => {
-    // Clean the clients state to prevent user double clicking the delete / edit button
-    setClients([]);
+    // Clean the sales state to prevent user double clicking the delete / edit button
+    setSales([]);
 
-    // Remove client
-    await client.remove(id);
+    // Remove sale
+    await sale.remove(id);
 
     // Closes the modal
     setOpenDeleteModal(false);
 
     // Ereases the deletion trigger
-    setClientToDeleteID(undefined);
+    setSaleToDeleteID(undefined);
 
-    // Fetch the clients again
+    // Fetch the sales again
     setRefresh(true);
   };
 
   const handleDeleteModalClose = () => {
     setOpenDeleteModal(false);
-    setClientToDeleteID(undefined);
+    setSaleToDeleteID(undefined);
   };
 
   const handleEditModalClose = () => {
     setOpenEditModal(false);
-    setClientToEditID(undefined);
+    setSaleToEditID(undefined);
   };
 
   return !refresh ? (
@@ -132,11 +130,11 @@ export default function ClientsList() {
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
         <Container maxWidth="lg" className={classes.container}>
-          {openDeleteModal && (
+          {/* {openDeleteModal && (
             <DeleteModal
               open={openDeleteModal}
               onClose={handleDeleteModalClose}
-              clientData={clientDataToDelete}
+              saleData={saleDataToDelete}
               remove={remove}
               onRefresh={setRefresh}
             />
@@ -145,19 +143,19 @@ export default function ClientsList() {
             <EditModal
               open={openEditModal}
               onClose={handleEditModalClose}
-              clientData={clientDataToEdit}
+              saleData={saleDataToEdit}
               onRefresh={setRefresh}
             />
-          )}
+          )} */}
           <Grid style={{ paddingBottom: 12 }} container>
             <Typography variant="h4" color="primary" align="left">
-              Clients
+              Sales
             </Typography>
           </Grid>
           <Table
-            dataClients={clients}
-            handleDelete={setClientToDeleteID}
-            handleEdit={setClientToEditID}
+            dataSales={sales}
+            handleDelete={setSaleToDeleteID}
+            handleEdit={setSaleToEditID}
           />
         </Container>
       </main>
