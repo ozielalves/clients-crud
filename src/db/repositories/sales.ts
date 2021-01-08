@@ -32,7 +32,6 @@ export const all = async (): Promise<Array<Sale> | undefined> => {
 
   if (snapshot) {
     snapshot.docs.map((_data) => {
-      console.log("DATE:", _data.data().date); //PRINT
       data.push({
         id: _data.id, // because id field in separate function in firestore
         date: _data.data().date.toDate().toString(), // date parsing from firebase format
