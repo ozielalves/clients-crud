@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  /* CircularProgress, */
   createStyles,
   Grid,
   IconButton,
@@ -14,12 +13,23 @@ import styled from "styled-components";
 import { Close } from "@material-ui/icons";
 import { ReactComponent as WarningIcon } from "../assets/warning_amber_24px.svg";
 import { useHistory } from "react-router-dom";
-import { Client } from "../db/repositories/clients";
+/* import { Client } from "../db/repositories/clients";
+
+interface DeleteSale {
+  id?: string;
+  firstname: string;
+  lastname: string;
+  company: string;
+  clientId: string;
+  description: string;
+  date: string;
+  value: number;
+} */
 
 interface props {
   open: boolean;
   onClose: () => void;
-  clientData: Client | undefined;
+  dataToDelete: any;
   onRefresh: React.Dispatch<React.SetStateAction<boolean>>;
   remove: (id: string) => Promise<void>;
 }
@@ -27,7 +37,7 @@ interface props {
 const DeleteModal = ({
   open,
   onClose,
-  clientData,
+  dataToDelete,
   onRefresh,
   remove,
 }: props) => {
@@ -36,24 +46,24 @@ const DeleteModal = ({
   const history = useHistory();
 
   useEffect(() => {
-    if (comfirmDelete && clientData) {
+    if (comfirmDelete && dataToDelete) {
       setConfirmDelete(false);
-      remove(clientData.id!);
+      remove(dataToDelete.id!);
       onClose();
       onRefresh(true);
     }
-  }, [comfirmDelete, clientData, onRefresh, onClose, history, remove]);
+  }, [comfirmDelete, dataToDelete, onRefresh, onClose, history, remove]);
 
   // Client Full name
   useEffect(() => {
-    if (clientData) {
+    if (dataToDelete) {
       setClientName(
-        clientData?.firstname &&
-          clientData?.lastname &&
-          `${clientData?.firstname} ${clientData?.lastname}`
+        dataToDelete?.firstname &&
+          dataToDelete?.lastname &&
+          `${dataToDelete?.firstname} ${dataToDelete?.lastname}`
       );
     }
-  }, [clientData, setClientName]);
+  }, [dataToDelete, setClientName]);
 
   const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -122,17 +132,29 @@ const DeleteModal = ({
                 </IconButton>
               </Box>
             </Grid>
-            <Grid item container alignItems="center" style={{ paddingLeft: 108}} spacing={1}>
+            <Grid
+              item
+              container
+              alignItems="center"
+              style={{ paddingLeft: 108 }}
+              spacing={1}
+            >
               <Grid item>
                 <WarningIcon />
               </Grid>
               <Grid item>
-                <Title>Delete this Client?</Title>
+                <Title>
+                  {dataToDelete?.value
+                    ? "Delete this Sale?"
+                    : "Delete this Client?"}
+                </Title>
               </Grid>
             </Grid>
             <Grid item container>
               <Body1>
-                {`Upon confirming the client "${clientName}" will be deleted from the database.`}
+                {dataToDelete?.value
+                  ? `Upon confirming the sale to ${clientName} of the company ${dataToDelete?.company} on ${dataToDelete?.date} will be deleted from the database.`
+                  : `Upon confirming the client "${clientName}" will be deleted from the database.`}
               </Body1>
             </Grid>
           </Grid>

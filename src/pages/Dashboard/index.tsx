@@ -8,7 +8,7 @@ import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
 import Link from "@material-ui/core/Link";
 import Chart from "../../components/Chart";
-import Deposits from "../../components/Deposits";
+import Deposits from "../../components/TotalSales";
 import Sales from "../../components/Sales";
 import Layout from "../../components/Layout";
 

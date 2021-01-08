@@ -91,7 +91,6 @@ const saleColumns: SaleColumn[] = [
     id: "description",
     label: "Description",
     minWidth: 170,
-    align: "right",
   },
   {
     id: "value",
@@ -119,7 +118,7 @@ interface ClientData {
   deleteButtonID: string;
 }
 interface SaleData {
-  date: Date;
+  date: string;
   clientName: string;
   company: string;
   description: string;
@@ -161,7 +160,7 @@ function createSaleData(
   deleteButtonID: string
 ): SaleData {
   return {
-    date: new Date(date),
+    date,
     clientName: `${firstname} ${lastname}`,
     company,
     description,
@@ -225,9 +224,6 @@ const StickyHeadTable = ({
   const saleRows = saleRowsToSort && saleRowsToSort.sort((a: any, b: any) =>
     a.date > b.date ? 1 : b.date > a.date ? -1 : 0
   );
-
-  console.log("ROW: ", clientRows); // PRINT
-  console.log("Data CLients on Table: ", dataClients); // PRINT
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);

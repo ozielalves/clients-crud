@@ -11,7 +11,8 @@ import {
 
 import * as client from "../../db/repositories/clients";
 import DeleteModal from "../../components/DeleteModal";
-import EditModal from "../../components/EditModal";
+import ClientEditModal from "../../components/ClientEditModal";
+import { useSnackbar } from "notistack";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -50,6 +51,7 @@ export default function ClientsList() {
   // Modal Controllers
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openEditModal, setOpenEditModal] = useState(false);
+  const {enqueueSnackbar} = useSnackbar();
 
   // Some needed states
   const [refresh, setRefresh] = useState(true);
@@ -63,9 +65,8 @@ export default function ClientsList() {
   useEffect(() => {
     fetchClients();
     setRefresh(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
-
-  console.log("OPEN DEL MODAL: ", openDeleteModal); // PRINT
 
   // Set Client's data to be deleted
   useEffect(() => {
@@ -94,9 +95,14 @@ export default function ClientsList() {
     // Fetch clients from repository
     const _clients = await client.all();
 
-    console.log("CLIENTS DATA: ", typeof _clients); // PRINT
-    // Set clients to state
-    setClients(_clients);
+    if (_clients) {
+      // Set clients to state
+      setClients(_clients);
+    } else {
+      enqueueSnackbar(`Couldn't retrieve data`, {
+        variant: "error",
+      });
+    }
   }
 
   const remove = async (id: string) => {
@@ -136,13 +142,13 @@ export default function ClientsList() {
             <DeleteModal
               open={openDeleteModal}
               onClose={handleDeleteModalClose}
-              clientData={clientDataToDelete}
+              dataToDelete={clientDataToDelete}
               remove={remove}
               onRefresh={setRefresh}
             />
           )}
           {openEditModal && (
-            <EditModal
+            <ClientEditModal
               open={openEditModal}
               onClose={handleEditModalClose}
               clientData={clientDataToEdit}
@@ -163,6 +169,6 @@ export default function ClientsList() {
       </main>
     </div>
   ) : (
-    <CircularProgress color="secondary" />
+    <CircularProgress color="primary" />
   );
 }

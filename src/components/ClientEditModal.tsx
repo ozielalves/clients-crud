@@ -18,6 +18,7 @@ import styled from "styled-components";
 import { Close } from "@material-ui/icons";
 
 import * as client from "../db/repositories/clients";
+import { useSnackbar } from "notistack";
 
 interface props {
   open: boolean;
@@ -27,22 +28,26 @@ interface props {
 }
 
 const EditModal = ({ open, onClose, clientData, onRefresh }: props) => {
+  // Some needed things
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const {enqueueSnackbar} = useSnackbar();
+
+  // Input States
   const [company, setCompany] = useState("");
   const [email, setEmail] = useState("");
   const [lastname, setLastname] = useState("");
   const [firstname, setFirstname] = useState("");
-  const [debt, setDebt] = useState<number>();
-  const [credit, setCredit] = useState<number>();
+  const [debt, setDebt] = useState(0);
+  const [credit, setCredit] = useState(0);
   const [noChanges, setNoChanges] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Erros
-  /* const [stateError, setStateError] = useState<boolean>(false);
-  const [quantityError, setQuantityError] = useState<boolean>(false);
-  const [dateError, setDateError] = useState<boolean>(false);
-  const [throughRetailerError, setThroughRetailerError] = useState<boolean>(
-    false
-  ); */
+  // Error Flags
+  const [companyErr, setCompanyErr] = useState(false);
+  const [emailErr, setEmailErr] = useState(false);
+  const [lastnameErr, setLastnameErr] = useState(false);
+  const [firstnameErr, setFirstnameErr] = useState(false);
+  const [debtErr, setDebtErr] = useState(false);
+  const [creditErr, setCreditErr] = useState(false);
 
   useEffect(() => {
     function getClientData() {
@@ -58,36 +63,6 @@ const EditModal = ({ open, onClose, clientData, onRefresh }: props) => {
     getClientData();
   }, [clientData]);
 
-  /* useEffect(() => {
-    if (readyToEdit) {
-      if (editedClient) {
-        setSellThroughEditedData({
-          id: editedClient.id
-          client_id: selectedClient
-            ? selectedClient.id !== undefined
-              ? selectedClient.id
-              : null
-            : null,
-          retailer_id: clientData.retailer_id,
-          product_id: clientData.product_id,
-          through_retailer_id: STValues.through_retailer_id,
-          unit_price: STValues.unit_price,
-          quantity: STValues.quantity,
-          month: STValues.month!,
-          year: STValues.year!,
-          state: selectedState?.abbreviation,
-        });
-    }
-  }, [
-    readyToEdit,
-    setSellThroughEditedData,
-    clientData,
-    selectedClient,
-    selectedState,
-    STValues,
-    noChanges,
-  ]); */
-
   const onSubmit = async (e: FormEvent) => {
     // Prevent form reload the page
     e.preventDefault();
@@ -95,33 +70,118 @@ const EditModal = ({ open, onClose, clientData, onRefresh }: props) => {
     // Disable the form input and button
     setIsSubmitting(true);
 
-    // Repository function to call
-    await client.update(clientData.id, {
-      company: company,
-      firstname: firstname,
-      lastname: lastname,
-      email: email,
-      debt: debt ? debt : 0,
-      credit: credit ? credit : 0,
-    });
+    // Error flag
+    let err = false;
 
-    // Clean the form
-    setCompany("");
-    setEmail("");
-    setLastname("");
-    setFirstname("");
-    setDebt(0);
-    setCredit(0);
-    setIsSubmitting(false);
+    if (!firstname) {
+      setFirstnameErr(true);
+      setIsSubmitting(false);
+      enqueueSnackbar(`Please provide the client's first name.`, {
+        variant: "error",
+      });
+      err = true;
+    }
+    if (!lastname) {
+      setLastnameErr(true);
+      setIsSubmitting(false);
+      enqueueSnackbar(`Please provide the client's last name.`, {
+        variant: "error",
+      });
+      err = true;
+    }
+    if (!email) {
+      setEmailErr(true);
+      setIsSubmitting(false);
+      enqueueSnackbar(`Please provide the client's email.`, {
+        variant: "error",
+      });
+      err = true;
+    }
+    if (!company) {
+      setCompanyErr(true);
+      setIsSubmitting(false);
+      enqueueSnackbar(`Please provide the client's company.`, {
+        variant: "error",
+      });
+      err = true;
+    }
+    if (credit < 0) {
+      setCreditErr(true);
+      setIsSubmitting(false);
+      enqueueSnackbar(`Please provide a credit value greater than 0.`, {
+        variant: "error",
+      });
+      err = true;
+    }
+    if (debt < 0) {
+      setFirstnameErr(true);
+      setIsSubmitting(false);
+      enqueueSnackbar(`Please provide a debt value greater than 0.`, {
+        variant: "error",
+      });
+      err = true;
+    }
+    if (
+      firstname &&
+      lastname &&
+      email &&
+      company &&
+      credit >= 0 &&
+      debt >= 0 &&
+      !err
+    ) {
+      // Repository function to call
+      await client
+        .update(clientData.id, {
+          company: company,
+          firstname: firstname,
+          lastname: lastname,
+          email: email,
+          debt: debt ? debt : 0,
+          credit: credit ? credit : 0,
+        })
+        .catch((err) => {
+          console.log(err);
+          enqueueSnackbar(`Error updating the client.`, {
+            variant: "error",
+          });
+          return;
+        });
 
-    // Fetch clients
-    onRefresh(true);
+      enqueueSnackbar(`Client edited successfuly.`, {
+        variant: "success",
+      });
 
-    // Close the modal
-    onClose();
+      // Clean the form
+      setCompany("");
+      setEmail("");
+      setLastname("");
+      setFirstname("");
+      setDebt(0);
+      setCredit(0);
 
-    // State life control
-    setNoChanges(true);
+      // Reset Error Flags
+      setCompanyErr(false);
+      setEmailErr(false);
+      setLastnameErr(false);
+      setFirstnameErr(false);
+      setDebtErr(false);
+      setCreditErr(false);
+
+      // Stop Circle progress
+      setIsSubmitting(false);
+
+      // Fetch clients
+      onRefresh(true);
+
+      // Close the modal
+      onClose();
+
+      // State life control
+      setNoChanges(true);
+    } else {
+      return;
+    }
   };
 
   const useStyles = makeStyles((theme: Theme) =>
@@ -129,7 +189,7 @@ const EditModal = ({ open, onClose, clientData, onRefresh }: props) => {
       paper: {
         position: "absolute",
         width: 635,
-        height: 666,
+        height: 555,
         backgroundColor: theme.palette.background.paper,
         border: "none",
         borderRadius: "10px",
@@ -160,7 +220,7 @@ const EditModal = ({ open, onClose, clientData, onRefresh }: props) => {
   );
 
   function getModalStyle() {
-    const top = 54;
+    const top = 50;
     const left = 50;
 
     return {
@@ -213,14 +273,54 @@ const EditModal = ({ open, onClose, clientData, onRefresh }: props) => {
               <Grid container spacing={2} xs={12} md={12} sm={12}>
                 <Grid item xs={5} md={5}>
                   <TextField
+                    id="outlined-required"
+                    label="Email"
+                    type="email"
+                    placeholder="Ex.: exemple@exemple.com"
+                    variant="outlined"
+                    error={emailErr}
+                    value={email}
+                    disabled={true}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                  />
+                </Grid>
+                <Grid item>
+                  <TextField
+                    required
+                    id="outlined-required"
+                    label="Company"
+                    type="text"
+                    placeholder="Ex.: Google"
+                    variant="outlined"
+                    error={companyErr}
+                    value={company}
+                    disabled={isSubmitting}
+                    helperText={"Mandatory"}
+                    onChange={(e) => {
+                      setCompany(e.target.value);
+                      setNoChanges(false);
+                    }}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                  />
+                </Grid>
+              </Grid>
+              <Grid container spacing={2} xs={12} md={12} sm={12}>
+                <Grid item xs={5} md={5}>
+                  <TextField
                     required
                     id="outlined-required"
                     label="First Name"
                     type="name"
                     placeholder="Ex.: Renata"
                     variant="outlined"
+                    error={firstnameErr}
                     value={firstname}
                     disabled={isSubmitting}
+                    helperText={"Mandatory"}
                     onChange={(e) => {
                       setFirstname(e.target.value);
                       setNoChanges(false);
@@ -238,50 +338,12 @@ const EditModal = ({ open, onClose, clientData, onRefresh }: props) => {
                     type="name"
                     placeholder="Ex.: Silva"
                     variant="outlined"
+                    error={lastnameErr}
                     value={lastname}
                     disabled={isSubmitting}
+                    helperText={"Mandatory"}
                     onChange={(e) => {
                       setLastname(e.target.value);
-                      setNoChanges(false);
-                    }}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                  />
-                </Grid>
-              </Grid>
-              <Grid container spacing={2} xs={12} md={12} sm={12}>
-                <Grid item xs={5} md={5}>
-                  <TextField
-                    required
-                    id="outlined-required"
-                    label="Email"
-                    type="email"
-                    placeholder="Ex.: exemple@exemple.com"
-                    variant="outlined"
-                    value={email}
-                    disabled={isSubmitting}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      setNoChanges(false);
-                    }}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                  />
-                </Grid>
-                <Grid item>
-                  <TextField
-                    required
-                    id="outlined-required"
-                    label="Company"
-                    type="text"
-                    placeholder="Ex.: Google"
-                    variant="outlined"
-                    value={company}
-                    disabled={isSubmitting}
-                    onChange={(e) => {
-                      setCompany(e.target.value);
                       setNoChanges(false);
                     }}
                     InputLabelProps={{
@@ -302,7 +364,8 @@ const EditModal = ({ open, onClose, clientData, onRefresh }: props) => {
                   label="Credit"
                   type="number"
                   variant="outlined"
-                  value={credit || "0"}
+                  error={creditErr}
+                  value={credit.toString()}
                   disabled={isSubmitting}
                   onChange={(e) => {
                     const val = Number(e.target.value);
@@ -318,7 +381,8 @@ const EditModal = ({ open, onClose, clientData, onRefresh }: props) => {
                   label="Debt"
                   type="number"
                   variant="outlined"
-                  value={debt || "0"}
+                  error={debtErr}
+                  value={debt.toString()}
                   disabled={isSubmitting}
                   onChange={(e) => {
                     const val = Number(e.target.value);
@@ -335,12 +399,12 @@ const EditModal = ({ open, onClose, clientData, onRefresh }: props) => {
                 item
                 container
                 spacing={1}
-                style={{ marginTop: 100 }}
+                style={{ marginTop: 50 }}
                 justify="flex-end"
               >
                 <Grid item>
                   {isSubmitting ? (
-                    <CircularProgress color="secondary" />
+                    <CircularProgress color="primary" />
                   ) : (
                     <ActionButton
                       type="submit"

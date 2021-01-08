@@ -16,6 +16,7 @@ import {
 import { createStyles, Theme } from "@material-ui/core/styles";
 
 import * as client from "../../../db/repositories/clients";
+import { useSnackbar } from "notistack";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -65,26 +66,39 @@ export default function ClientRegister() {
   const history = useHistory();
   const redirectPath = "/clients";
   const refresh = useRefresh(history, redirectPath);
+  const { enqueueSnackbar } = useSnackbar();
 
   // Some needed states
   const [isSubmitting, setIsSubmitting] = useState<boolean>();
+  const [registerSuccess, setRegisterSuccess] = useState(false);
+
+  // Input States
   const [company, setCompany] = useState("");
   const [email, setEmail] = useState("");
   const [lastname, setLastname] = useState("");
   const [firstname, setFirstname] = useState("");
-  const [debt, setDebt] = useState<number>();
-  const [credit, setCredit] = useState<number>();
+  const [debt, setDebt] = useState(0);
+  const [credit, setCredit] = useState(0);
+
+  // Error Flags
+  const [companyErr, setCompanyErr] = useState(false);
+  const [emailErr, setEmailErr] = useState(false);
+  const [lastnameErr, setLastnameErr] = useState(false);
+  const [firstnameErr, setFirstnameErr] = useState(false);
+  const [debtErr, setDebtErr] = useState(false);
+  const [creditErr, setCreditErr] = useState(false);
 
   // Fetch all clients when this view mounted
   useEffect(() => {
-    if (isSubmitting === false) {
+    if (registerSuccess === true) {
+      setRegisterSuccess(false);
       if (history.location.pathname === redirectPath) {
         refresh();
       } else {
         history.push(redirectPath);
       }
     }
-  }, [isSubmitting, history, refresh]);
+  }, [registerSuccess, history, refresh]);
 
   const onSubmit = async (e: FormEvent) => {
     // Prevent form reload the page
@@ -93,24 +107,112 @@ export default function ClientRegister() {
     // Disable the form input and button
     setIsSubmitting(true);
 
-    // Repository function to create a Client
-    await client.create({
-      company: company,
-      firstname: firstname,
-      lastname: lastname,
-      email: email,
-      debt: debt ? debt : 0,
-      credit: credit ? credit : 0,
-    });
+    // Error flag
+    let err = false;
 
-    // Clean the form
-    setCompany("");
-    setEmail("");
-    setLastname("");
-    setFirstname("");
-    setDebt(0);
-    setCredit(0);
-    setIsSubmitting(false);
+    if (!firstname) {
+      setFirstnameErr(true);
+      setIsSubmitting(false);
+      enqueueSnackbar(`Please provide the client's first name.`, {
+        variant: "error",
+      });
+      err = true;
+    }
+    if (!lastname) {
+      setLastnameErr(true);
+      setIsSubmitting(false);
+      enqueueSnackbar(`Please provide the client's last name.`, {
+        variant: "error",
+      });
+      err = true;
+    }
+    if (!email) {
+      setEmailErr(true);
+      setIsSubmitting(false);
+      enqueueSnackbar(`Please provide the client's email.`, {
+        variant: "error",
+      });
+      err = true;
+    }
+    if (!company) {
+      setCompanyErr(true);
+      setIsSubmitting(false);
+      enqueueSnackbar(`Please provide the client's company.`, {
+        variant: "error",
+      });
+      err = true;
+    }
+    if (credit < 0) {
+      setCreditErr(true);
+      setIsSubmitting(false);
+      enqueueSnackbar(`Please provide a credit value greater than 0.`, {
+        variant: "error",
+      });
+      err = true;
+    }
+    if (debt < 0) {
+      setFirstnameErr(true);
+      setIsSubmitting(false);
+      enqueueSnackbar(`Please provide a debt value greater than 0.`, {
+        variant: "error",
+      });
+      err = true;
+    }
+    if (
+      firstname &&
+      lastname &&
+      email &&
+      company &&
+      credit >= 0 &&
+      debt >= 0 &&
+      !err
+    ) {
+      // Repository function to create a Client
+      await client
+        .create({
+          company: company,
+          firstname: firstname,
+          lastname: lastname,
+          email: email,
+          debt: debt ? debt : 0,
+          credit: credit ? credit : 0,
+        })
+        .catch((err) => {
+          console.log(err);
+          enqueueSnackbar(`Error registering the client.`, {
+            variant: "error",
+          });
+          return;
+        });
+      
+      // Redirects to Clients
+      setRegisterSuccess(true);
+
+      enqueueSnackbar(`Client Registered.`, {
+        variant: "success",
+      });
+
+      // Clean the form
+      setCompany("");
+      setEmail("");
+      setLastname("");
+      setFirstname("");
+      setDebt(0);
+      setCredit(0);
+
+      // Reset Error Flags
+      setCompanyErr(false);
+      setEmailErr(false);
+      setLastnameErr(false);
+      setFirstnameErr(false);
+      setDebtErr(false);
+      setCreditErr(false);
+
+      // Stop Circle progress
+      setIsSubmitting(false);
+    } else {
+      return;
+    }
   };
 
   return (
@@ -154,8 +256,10 @@ export default function ClientRegister() {
                     type="name"
                     placeholder="Ex.: Renata"
                     variant="outlined"
+                    error={firstnameErr}
                     value={firstname}
                     disabled={isSubmitting}
+                    helperText={"Mandatory"}
                     onChange={(e) => setFirstname(e.target.value)}
                     InputLabelProps={{
                       shrink: true,
@@ -170,8 +274,10 @@ export default function ClientRegister() {
                     type="name"
                     placeholder="Ex.: Silva"
                     variant="outlined"
+                    error={lastnameErr}
                     value={lastname}
                     disabled={isSubmitting}
+                    helperText={"Mandatory"}
                     onChange={(e) => setLastname(e.target.value)}
                     InputLabelProps={{
                       shrink: true,
@@ -188,8 +294,10 @@ export default function ClientRegister() {
                     type="email"
                     placeholder="Ex.: exemple@exemple.com"
                     variant="outlined"
+                    error={emailErr}
                     value={email}
                     disabled={isSubmitting}
+                    helperText={"Mandatory"}
                     onChange={(e) => setEmail(e.target.value)}
                     InputLabelProps={{
                       shrink: true,
@@ -204,8 +312,10 @@ export default function ClientRegister() {
                     type="text"
                     placeholder="Ex.: Google"
                     variant="outlined"
+                    error={companyErr}
                     value={company}
                     disabled={isSubmitting}
+                    helperText={"Mandatory"}
                     onChange={(e) => setCompany(e.target.value)}
                     InputLabelProps={{
                       shrink: true,
@@ -224,7 +334,8 @@ export default function ClientRegister() {
                 label="Credit"
                 type="number"
                 variant="outlined"
-                value={credit || "0"}
+                error={creditErr}
+                value={credit.toString()}
                 disabled={isSubmitting}
                 onChange={(e) => {
                   const val = Number(e.target.value);
@@ -239,7 +350,8 @@ export default function ClientRegister() {
                 label="Debt"
                 type="number"
                 variant="outlined"
-                value={debt || "0"}
+                error={debtErr}
+                value={debt.toString()}
                 disabled={isSubmitting}
                 onChange={(e) => {
                   const val = Number(e.target.value);
@@ -252,7 +364,7 @@ export default function ClientRegister() {
               <Grid item container spacing={1} justify="flex-end">
                 <Grid item>
                   {isSubmitting ? (
-                    <CircularProgress color="secondary" />
+                    <CircularProgress color="primary" />
                   ) : (
                     <ActionButton
                       type="submit"

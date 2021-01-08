@@ -16,44 +16,74 @@ export type Client = {
 };
 
 // retrieve all clients
-export const all = async (): Promise<Array<Client>> => {
-  const snapshot = await db.collection(COLLECTION_NAME).get();
+export const all = async (): Promise<Array<Client> | undefined> => {
+  const snapshot = await db
+    .collection(COLLECTION_NAME)
+    .get()
+    .catch((error) => {
+      console.log(`Error getting documents from ${COLLECTION_NAME}`, error);
+    });
   const data: Array<any> = [];
 
-  snapshot.docs.map((_data) =>
-    data.push({
-      id: _data.id, // because id field in separate function in firestore
-      ..._data.data(), // the remaining fields
-    })
-  );
+  if (snapshot) {
+    snapshot.docs.map((_data) =>
+      data.push({
+        id: _data.id, // because id field in separate function in firestore
+        ..._data.data(), // the remaining fields
+      })
+    );
 
-  // return and convert back it array of client
-  return data as Array<Client>;
+    // return and convert back it array of client
+    return data as Array<Client>;
+  }
 };
 
 // create a client
-export const create = async (client: Client): Promise<Client> => {
-  const docRef = await db.collection(COLLECTION_NAME).add(client);
-  
-  // return new created client
-  return {
-    id: docRef.id,
-    ...client,
-  } as Client;
+export const create = async (client: Client): Promise<Client | undefined> => {
+  const docRef = await db
+    .collection(COLLECTION_NAME)
+    .add(client)
+    .catch((error) => {
+      console.log(`Error creating the document on ${COLLECTION_NAME}`, error);
+    });
+  if (docRef) {
+    // return new created client
+    return {
+      id: docRef.id,
+      ...client,
+    } as Client;
+  }
 };
 
 // update a client
-export const update = async (id: string, client: Client): Promise<Client> => {
-  await db.collection(COLLECTION_NAME).doc(id).update(client);
+export const update = async (
+  id: string,
+  client: Client
+): Promise<Client | undefined> => {
+  await db
+    .collection(COLLECTION_NAME)
+    .doc(id)
+    .update(client)
+    .catch((error) => {
+      console.log(`Error updating the document from ${COLLECTION_NAME}`, error);
+    });
 
-  // return updated client
-  return {
-    id: id,
-    ...client,
-  } as Client;
+  if (db) {
+    // return updated client
+    return {
+      id: id,
+      ...client,
+    } as Client;
+  }
 };
 
 // delete a client
 export const remove = async (id: string) => {
-  await db.collection(COLLECTION_NAME).doc(id).delete();
+  await db
+    .collection(COLLECTION_NAME)
+    .doc(id)
+    .delete()
+    .catch((error) => {
+      console.log(`Error removing the document from ${COLLECTION_NAME}`, error);
+    });
 };
