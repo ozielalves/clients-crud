@@ -74,6 +74,10 @@ export default function Chart() {
       if (parsedSales.length > 0) {
         setTodaySales(parsedSales);
       } else {
+        enqueueSnackbar(`No sales made today`, {
+          variant: "info",
+          persist: true,
+        });
         setTodaySales(standardData);
       }
     } else {

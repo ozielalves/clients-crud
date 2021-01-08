@@ -180,7 +180,7 @@ export default function SaleRegister() {
     if (!description) {
       setDescriptionErr(true);
       setIsSubmitting(false);
-      enqueueSnackbar(`Please write a simpledescription.`, {
+      enqueueSnackbar(`Please write a simple description.`, {
         variant: "error",
       });
       err = true;
@@ -214,7 +214,7 @@ export default function SaleRegister() {
         await client
           .update(clientId, {
             ...saleClient,
-            credit: Number((saleClient.debt + value).toFixed(2)),
+            debt: Number((saleClient.debt + value).toFixed(2)),
           })
           .catch((err) => {
             console.log(err);
@@ -223,7 +223,7 @@ export default function SaleRegister() {
             });
           });
       } else {
-        if (saleClient.credit - value < 0) {
+        if ((saleClient.credit - value) < 0) {
           const rest = Math.abs(saleClient.credit - value);
           const valueToDecrease = value - rest;
 
