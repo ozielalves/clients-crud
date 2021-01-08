@@ -37,12 +37,12 @@ const standardData = [
 
 export default function Chart() {
   const theme = useTheme();
-  const {enqueueSnackbar} = useSnackbar();
+  const { enqueueSnackbar } = useSnackbar();
   const [todaySales, setTodaySales] = useState<TodaySale[]>();
 
   useEffect(() => {
     fetchSales();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function fetchSales() {
@@ -55,7 +55,7 @@ export default function Chart() {
     const today = new Date();
 
     if (_sales) {
-      // Parse response to split data
+      // Parse response to split data, set values and sort it by time
       const parsedSales = _sales
         .filter(
           (sale) =>
@@ -68,7 +68,11 @@ export default function Chart() {
             time: sale.date.split(" ")[4],
             value: Math.round(sale.value),
           };
-        }) as TodaySale[];
+        })
+        .sort(
+          (a, b) =>
+            new Date("1970/01/01 " + a.time).getTime() - new Date("1970/01/01 " + b.time).getTime()
+        ) as TodaySale[];
 
       // Set sales to state
       if (parsedSales.length > 0) {

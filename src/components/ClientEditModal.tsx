@@ -171,11 +171,11 @@ const EditModal = ({ open, onClose, clientData, onRefresh }: props) => {
       // Stop Circle progress
       setIsSubmitting(false);
 
-      // Fetch clients
-      onRefresh(true);
-
       // Close the modal
       onClose();
+
+      // Fetch clients
+      onRefresh(true);
 
       // State life control
       setNoChanges(true);

@@ -89,7 +89,9 @@ const SaleEditModal = ({ open, onClose, saleData, onRefresh }: props) => {
         };
       });
 
-      const [saleClient] = _clients.filter(client => client.id === saleData.clientId)
+      const [saleClient] = _clients.filter(
+        (client) => client.id === saleData.clientId
+      );
 
       if (!saleClient) {
         setClientNotFound(true);
@@ -156,11 +158,11 @@ const SaleEditModal = ({ open, onClose, saleData, onRefresh }: props) => {
       setValue(0);
       setIsSubmitting(false);
 
-      // Fetch clients
-      onRefresh(true);
-
       // Close the modal
       onClose();
+
+      // Fetch clients
+      onRefresh(true);
 
       // State life control
       setNoChanges(true);
@@ -377,7 +379,7 @@ const SaleEditModal = ({ open, onClose, saleData, onRefresh }: props) => {
                       color="primary"
                       disabled={isSubmitting || noChanges}
                     >
-                      Register
+                      Edit
                     </ActionButton>
                   )}
                 </Grid>

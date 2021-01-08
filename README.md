@@ -1,46 +1,131 @@
-# Getting Started with Create React App
+# Green Sales Manager
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Green Sales is an app to manage sales! Once on the site, the user is able to register clients with initial credit or initial debt. It is possible to register a sale to an existing customer, the value of which will update debt or credit values in the customer's account.
 
-## Available Scripts
+Green Sales was developed using [React JS](https://pt-br.reactjs.org/) and consumes data from a custom API created using [Firebase](https://firebase.google.com/). Besides React and Firebase, other technologies were employed, such as: [TypeScript](https://www.typescriptlang.org/), [Material UI](https://material-ui.com/), [Recharts](https://recharts.org/en-US/), [Styled Components](https://styled-components.com/) and more.
 
-In the project directory, you can run:
+## Features
 
-### `yarn start`
+### **Dashboard Page with recent sales and analytical data**
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+<img src="src/assets/dashboard.PNG"/>
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+The dashboard page presents a plot depicting sales made during the day, that was implemented using the Recharts library.
 
-### `yarn test`
+### **Client Register Page**
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+<img src="src/assets/clientRegister.PNG"/>
 
-### `yarn build`
+"TextField" input components, from the Material UI library, were used on the client registration page. In addition to form validation, the data also undergoes a content validation before being submitted.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### **Client List Page**
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+<img src="src/assets/clientsList.PNG"/>
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+After registering a client, the user is redirected to the clients listing page, in which customers are displayed in a table on alphabtical order. On each item of the table, it is possible to edit or delete an existing client.
 
-### `yarn eject`
+### **Client Editing Modal**
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+<img src="src/assets/clientEdit.PNG"/>
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+The client editing modal is displayed whenever the user hits a client editing button. The user is allowed to change all of the informations about a customer, except their email.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### **Client Deletion Confirmation Modal**
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+<img src="src/assets/clientDelete.PNG"/>
 
-## Learn More
+The client deletion confirmation modal is displayed whenever the user hits a client deletion button.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### **Sale Registering Page**
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+<img src="src/assets/saleRegister.PNG"/>
+
+The sale registering page works in the same fashion as the clients one. For each sale, the user is asked to select an associated customer, it's date and time of occurrence, it's total value and to provide a simple description for identification purposes. Upon a sale's registration, the concerned client's credit or debt will be automatically updated.
+
+### **Sales Listing Page**
+
+<img src="src/assets/salesList.PNG"/>
+
+After registering a sale, the user is redirected to the sales listing page, where the sales are displayed on a table in descending order by their date of occurrence. On each item of the table, it is possible to edit or delete an existing sale.
+
+### **Sale Editing Modal**
+
+<img src="src/assets/saleEdit.PNG"/>
+
+The sale editing modal is displayed whenever the user hits a sale editing button. The user is only allowed to change the sale description and its total value.
+
+### **Sale Deletion Confirmation Modal**
+
+<img src="src/assets/saleDelete.PNG"/>
+
+The sale deletion confirmation modal is displayed whenever the user hits a sale deletion button.
+
+**Obs.:** The notification of errors and successes occurs via snackbar
+
+## Requirements
+
+- Node.js LTS release or greater
+- Yarn (optional)
+- React JS
+- Git
+
+## Documentation
+
+- [React JS](https://reactnative.dev/docs/environment-setup)
+
+### Quick running
+
+Assuming [Git](https://git-scm.com/) and [NodeJS LTS](https://nodejs.org/en/) are installed, it is possible to follow:
+
+1. Download the project and go to the root directory
+
+   ```bash
+   git clone https://github.com/ozielalves/clients-crud.git && cd client-crud/
+   ```
+
+2. On the repository root directory install the required packages
+
+   ```bash
+   npm install
+
+   # or
+
+   yarn install
+   ```
+
+3. Runnning
+
+   ```bash
+   npm start
+
+   # or
+
+   yarn start
+   ```
+
+## Building
+
+```bash
+   npm run build
+```
+
+## TODO
+
+- [ ] Create unit tests;
+- [ ] Allow users to signup and login;
+- [ ] Reevaluate business rules planning;
+- [ ] Single email validation for clients.
+
+## Contributing
+
+You are welcome to contribute! Create the pull requests.
+
+For major changes, please, open an issue first to discuss what you would like to change.
+
+## Support
+
+- [Twitter @ozielvales](https://twitter.com/ozielvales) | [E-mail](mailto:ozielalves@ufrn.edu.br)
+
+## Author
+
+- [Oziel Alves](https://github.com/ozielalves)
