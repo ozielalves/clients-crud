@@ -42,7 +42,7 @@ export default function Sales() {
 
   useEffect(() => {
     fetchSales();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function fetchSales() {
@@ -55,9 +55,19 @@ export default function Sales() {
     if (_sales && _clients) {
       // Parse response to split data
       const parsedSales = _sales.map((sale) => {
-        const [saleClient] = _clients.filter(
+        let [saleClient] = _clients.filter(
           (client) => client.id === sale.clientId
         );
+        if (!saleClient) {
+          saleClient = {
+            firstname: "Client not found",
+            lastname: "or removed",
+            company: "Company not found or removed",
+            email: "",
+            debt: 0,
+            credit: 0,
+          };
+        }
         return {
           ...sale,
           date: `${sale.date.split(" ")[0]} ${sale.date.split(" ")[1]} ${
@@ -69,8 +79,13 @@ export default function Sales() {
         };
       }) as ISale[];
 
+      // Sort Sales by date
+      const sortedSales = parsedSales.slice(0, 5).sort((a, b) => {
+        return (new Date(b.date)).getDate() - (new Date(a.date)).getDate();
+      });
+      
       // Set sales to state
-      setSales(parsedSales.slice(0, 5));
+      setSales(sortedSales);
     } else {
       enqueueSnackbar(`Couldn't retrieve data`, {
         variant: "error",

@@ -44,6 +44,7 @@ const SaleEditModal = ({ open, onClose, saleData, onRefresh }: props) => {
   const [noChanges, setNoChanges] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
+  const [clientNotFound, setClientNotFound] = useState(false);
 
   const [clients, setClients] = useState<IClient[]>();
   const [date, setDate] = useState<Date | null>(null);
@@ -88,10 +89,19 @@ const SaleEditModal = ({ open, onClose, saleData, onRefresh }: props) => {
         };
       });
 
+      const [saleClient] = _clients.filter(client => client.id === saleData.clientId)
+
+      if (!saleClient) {
+        setClientNotFound(true);
+        enqueueSnackbar(`Please delete this sale.`, {
+          variant: "info",
+        });
+      }
+
       // Set clients to state
       setClients(parsedClients);
     } else {
-      enqueueSnackbar(`Couldn't retrieve data`, {
+      enqueueSnackbar(`Couldn't retrieve clients`, {
         variant: "error",
       });
     }
@@ -216,6 +226,7 @@ const SaleEditModal = ({ open, onClose, saleData, onRefresh }: props) => {
         onClose={() => {
           onClose();
           setNoChanges(true);
+          setClientNotFound(false);
         }}
         aria-labelledby="simple-modal-title"
         aria-describedby="simple-modal-description"
@@ -232,6 +243,7 @@ const SaleEditModal = ({ open, onClose, saleData, onRefresh }: props) => {
                 onClick={() => {
                   onClose();
                   setNoChanges(true);
+                  setClientNotFound(false);
                 }}
               >
                 <Close />
@@ -302,10 +314,7 @@ const SaleEditModal = ({ open, onClose, saleData, onRefresh }: props) => {
                       openTo="date"
                       views={["date", "year", "month"]}
                       disabled
-                      onChange={(date) => {
-                        /* setDate(date);
-                        setNoChanges(false); */
-                      }}
+                      onChange={(date) => {}}
                       InputLabelProps={{
                         shrink: true,
                       }}
@@ -322,7 +331,7 @@ const SaleEditModal = ({ open, onClose, saleData, onRefresh }: props) => {
                     variant="outlined"
                     error={descriptionErr}
                     value={description}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || clientNotFound}
                     helperText={"Mandatory"}
                     onChange={(e) => {
                       setDescription(e.target.value);
@@ -347,7 +356,7 @@ const SaleEditModal = ({ open, onClose, saleData, onRefresh }: props) => {
                 variant="outlined"
                 error={valueErr}
                 value={value.toString()}
-                disabled={isSubmitting}
+                disabled={isSubmitting || clientNotFound}
                 onChange={(e) => {
                   const val = Number(e.target.value);
                   val >= 0 && setValue(val);

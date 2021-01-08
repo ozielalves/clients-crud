@@ -203,7 +203,7 @@ const StickyHeadTable = ({
     );
   }) : null;
 
-  const saleRowsToSort = dataSales ? dataSales.map((item: any) => {
+  const saleRows = dataSales ? dataSales.map((item: any) => {
     return createSaleData(
       item.firstname,
       item.lastname,
@@ -219,10 +219,6 @@ const StickyHeadTable = ({
   // Sorts the array in alphabetical order based on the key names
   const clientRows = clientRowsToSort && clientRowsToSort.sort((a: any, b: any) =>
     a.name > b.name ? 1 : b.name > a.name ? -1 : 0
-  );
-
-  const saleRows = saleRowsToSort && saleRowsToSort.sort((a: any, b: any) =>
-    a.date > b.date ? 1 : b.date > a.date ? -1 : 0
   );
 
   const handleChangePage = (event: unknown, newPage: number) => {

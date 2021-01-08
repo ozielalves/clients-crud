@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import Layout from "../../components/Layout";
 import Table from "../../components/Table";
 import {
-  CircularProgress,
   Container,
   Grid,
+  LinearProgress,
   makeStyles,
   Typography,
 } from "@material-ui/core";
@@ -48,10 +48,11 @@ const useStyles = makeStyles((theme) => ({
 export default function ClientsList() {
   const classes = useStyles();
 
-  // Modal Controllers
+  // Modal Controllers and utils
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openEditModal, setOpenEditModal] = useState(false);
-  const {enqueueSnackbar} = useSnackbar();
+  const { enqueueSnackbar } = useSnackbar();
+  const [isloading, setLoading] = useState(false);
 
   // Some needed states
   const [refresh, setRefresh] = useState(true);
@@ -65,7 +66,7 @@ export default function ClientsList() {
   useEffect(() => {
     fetchClients();
     setRefresh(false);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
 
   // Set Client's data to be deleted
@@ -89,6 +90,8 @@ export default function ClientsList() {
   }, [clientToEditID, setClientDataToEdit, clients]);
 
   async function fetchClients() {
+    setLoading(true);
+
     // Clean the clients array first
     setClients([]);
 
@@ -98,10 +101,12 @@ export default function ClientsList() {
     if (_clients) {
       // Set clients to state
       setClients(_clients);
+      setLoading(false);
     } else {
       enqueueSnackbar(`Couldn't retrieve data`, {
         variant: "error",
       });
+      setLoading(false);
     }
   }
 
@@ -110,7 +115,18 @@ export default function ClientsList() {
     setClients([]);
 
     // Remove client
-    await client.remove(id);
+    await client.remove(id).catch((err) => {
+      console.log(err);
+      enqueueSnackbar(`Couldn't delete the client`, {
+        variant: "error",
+      });
+      return;
+    });
+    
+    // Success
+    enqueueSnackbar(`Client removed successfully.`, {
+      variant: "success",
+    });
 
     // Closes the modal
     setOpenDeleteModal(false);
@@ -132,43 +148,45 @@ export default function ClientsList() {
     setClientToEditID(undefined);
   };
 
-  return !refresh ? (
+  return (
     <div className={classes.root}>
       <Layout />
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
-        <Container maxWidth="lg" className={classes.container}>
-          {openDeleteModal && (
-            <DeleteModal
-              open={openDeleteModal}
-              onClose={handleDeleteModalClose}
-              dataToDelete={clientDataToDelete}
-              remove={remove}
-              onRefresh={setRefresh}
+        {!isloading ? (
+          <Container maxWidth="lg" className={classes.container}>
+            {openDeleteModal && (
+              <DeleteModal
+                open={openDeleteModal}
+                onClose={handleDeleteModalClose}
+                dataToDelete={clientDataToDelete}
+                remove={remove}
+                onRefresh={setRefresh}
+              />
+            )}
+            {openEditModal && (
+              <ClientEditModal
+                open={openEditModal}
+                onClose={handleEditModalClose}
+                clientData={clientDataToEdit}
+                onRefresh={setRefresh}
+              />
+            )}
+            <Grid style={{ paddingBottom: 12 }} container>
+              <Typography variant="h4" color="primary" align="left">
+                Clients
+              </Typography>
+            </Grid>
+            <Table
+              dataClients={clients}
+              handleDelete={setClientToDeleteID}
+              handleEdit={setClientToEditID}
             />
-          )}
-          {openEditModal && (
-            <ClientEditModal
-              open={openEditModal}
-              onClose={handleEditModalClose}
-              clientData={clientDataToEdit}
-              onRefresh={setRefresh}
-            />
-          )}
-          <Grid style={{ paddingBottom: 12 }} container>
-            <Typography variant="h4" color="primary" align="left">
-              Clients
-            </Typography>
-          </Grid>
-          <Table
-            dataClients={clients}
-            handleDelete={setClientToDeleteID}
-            handleEdit={setClientToEditID}
-          />
-        </Container>
+          </Container>
+        ) : (
+          <LinearProgress />
+        )}
       </main>
     </div>
-  ) : (
-    <CircularProgress color="primary" />
   );
 }

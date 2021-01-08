@@ -130,18 +130,24 @@ export default function SaleRegister() {
     const _clients = await client.all();
 
     if (_clients) {
-      const parsedClients = _clients.map((client) => {
-        return {
-          firstname: client.firstname,
-          lastname: client.lastname,
-          company: client.company,
-          email: client.email,
-          id: client.id!,
-          name: `${client.firstname} ${client.lastname} - ${client.company}`,
-          credit: client.credit,
-          debt: client.debt,
-        };
-      });
+      // Parse clients and sort it
+      const parsedClients = _clients
+        .map((client) => {
+          return {
+            firstname: client.firstname,
+            lastname: client.lastname,
+            company: client.company,
+            email: client.email,
+            id: client.id!,
+            name: `${client.firstname} ${client.lastname} - ${client.company}`,
+            credit: client.credit,
+            debt: client.debt,
+          };
+        })
+        .sort((a: any, b: any) =>
+          a.name > b.name ? 1 : b.name > a.name ? -1 : 0
+        );
+
       // Set clients to state
       setClients(parsedClients);
     } else {
@@ -223,7 +229,7 @@ export default function SaleRegister() {
             });
           });
       } else {
-        if ((saleClient.credit - value) < 0) {
+        if (saleClient.credit - value < 0) {
           const rest = Math.abs(saleClient.credit - value);
           const valueToDecrease = value - rest;
 

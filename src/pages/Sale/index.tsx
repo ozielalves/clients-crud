@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import Layout from "../../components/Layout";
 import Table from "../../components/Table";
 import {
-  CircularProgress,
   Container,
   Grid,
+  LinearProgress,
   makeStyles,
   Typography,
 } from "@material-ui/core";
@@ -66,7 +66,8 @@ export default function SalesList() {
   // Modal Controllers
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openEditModal, setOpenEditModal] = useState(false);
-  const {enqueueSnackbar} = useSnackbar();
+  const { enqueueSnackbar } = useSnackbar();
+  const [isloading, setLoading] = useState(false);
 
   // Some needed states
   const [refresh, setRefresh] = useState(true);
@@ -80,7 +81,7 @@ export default function SalesList() {
   useEffect(() => {
     fetchSales();
     setRefresh(false);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
 
   // Set Sale's data to be deleted
@@ -102,6 +103,8 @@ export default function SalesList() {
   }, [saleToEditID, setSaleDataToEdit, sales]);
 
   async function fetchSales() {
+    setLoading(true);
+
     // Clean the sales array first
     setSales([]);
 
@@ -112,10 +115,19 @@ export default function SalesList() {
     if (_sales && _clients) {
       // Parse response to split data
       const parsedSales = _sales.map((sale) => {
-        const [saleClient] = _clients.filter(
+        let [saleClient] = _clients.filter(
           (client) => client.id === sale.clientId
         );
-
+        if (!saleClient) {
+          saleClient = {
+            firstname: "Client not found",
+            lastname: "or removed",
+            company: "Company not found or removed",
+            email: "",
+            debt: 0,
+            credit: 0,
+          };
+        }
         return {
           ...sale,
           time: sale.date.split(" ")[4],
@@ -129,12 +141,19 @@ export default function SalesList() {
         };
       }) as ISale[];
 
+      // Sort Sales by date
+      const sortedSales = parsedSales.sort((a, b) => {
+        return (new Date(b.date)).getDate() - (new Date(a.date)).getDate();
+      });
+
       // Set sales to state
-      setSales(parsedSales);
+      setSales(sortedSales);
+      setLoading(false);
     } else {
       enqueueSnackbar(`Couldn't retrieve data`, {
         variant: "error",
       });
+      setLoading(false);
     }
   }
 
@@ -143,7 +162,18 @@ export default function SalesList() {
     setSales([]);
 
     // Remove sale
-    await sale.remove(id);
+    await sale.remove(id).catch((err) => {
+      console.log(err);
+      enqueueSnackbar(`Couldn't delete the sale`, {
+        variant: "error",
+      });
+      return;
+    });
+
+    // Success
+    enqueueSnackbar(`Sale removed successfully.`, {
+      variant: "success",
+    });
 
     // Closes the modal
     setOpenDeleteModal(false);
@@ -165,43 +195,45 @@ export default function SalesList() {
     setSaleToEditID(undefined);
   };
 
-  return !refresh ? (
+  return (
     <div className={classes.root}>
       <Layout />
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
-        <Container maxWidth="lg" className={classes.container}>
-          {openDeleteModal && (
-            <DeleteModal
-              open={openDeleteModal}
-              onClose={handleDeleteModalClose}
-              dataToDelete={saleDataToDelete}
-              remove={remove}
-              onRefresh={setRefresh}
+        {!isloading ? (
+          <Container maxWidth="lg" className={classes.container}>
+            {openDeleteModal && (
+              <DeleteModal
+                open={openDeleteModal}
+                onClose={handleDeleteModalClose}
+                dataToDelete={saleDataToDelete}
+                remove={remove}
+                onRefresh={setRefresh}
+              />
+            )}
+            {openEditModal && (
+              <EditModal
+                open={openEditModal}
+                onClose={handleEditModalClose}
+                saleData={saleDataToEdit}
+                onRefresh={setRefresh}
+              />
+            )}
+            <Grid style={{ paddingBottom: 12 }} container>
+              <Typography variant="h4" color="primary" align="left">
+                Sales
+              </Typography>
+            </Grid>
+            <Table
+              dataSales={sales}
+              handleDelete={setSaleToDeleteID}
+              handleEdit={setSaleToEditID}
             />
-          )}
-          {openEditModal && (
-            <EditModal
-              open={openEditModal}
-              onClose={handleEditModalClose}
-              saleData={saleDataToEdit}
-              onRefresh={setRefresh}
-            />
-          )}
-          <Grid style={{ paddingBottom: 12 }} container>
-            <Typography variant="h4" color="primary" align="left">
-              Sales
-            </Typography>
-          </Grid>
-          <Table
-            dataSales={sales}
-            handleDelete={setSaleToDeleteID}
-            handleEdit={setSaleToEditID}
-          />
-        </Container>
+          </Container>
+        ) : (
+          <LinearProgress />
+        )}
       </main>
     </div>
-  ) : (
-    <CircularProgress color="primary" />
   );
 }
