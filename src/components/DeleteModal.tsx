@@ -7,24 +7,13 @@ import {
   makeStyles,
   Modal,
   Theme,
+  useMediaQuery,
 } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Close } from "@material-ui/icons";
 import { ReactComponent as WarningIcon } from "../assets/warning_amber_24px.svg";
 import { useHistory } from "react-router-dom";
-/* import { Client } from "../db/repositories/clients";
-
-interface DeleteSale {
-  id?: string;
-  firstname: string;
-  lastname: string;
-  company: string;
-  clientId: string;
-  description: string;
-  date: string;
-  value: number;
-} */
 
 interface props {
   open: boolean;
@@ -44,6 +33,10 @@ const DeleteModal = ({
   const [comfirmDelete, setConfirmDelete] = useState<boolean>(false);
   const [clientName, setClientName] = useState<string>();
   const history = useHistory();
+
+  const isTabletOrDesktop = useMediaQuery('(min-width:600px)');
+
+  console.log(isTabletOrDesktop);
 
   useEffect(() => {
     if (comfirmDelete && dataToDelete) {
@@ -69,7 +62,7 @@ const DeleteModal = ({
     createStyles({
       paper: {
         position: "absolute",
-        width: 583,
+        width: isTabletOrDesktop ? 583 : 350,
         height: 311,
         zIndex: 9999999,
         backgroundColor: theme.palette.background.paper,
@@ -136,7 +129,7 @@ const DeleteModal = ({
               item
               container
               alignItems="center"
-              style={{ paddingLeft: 108 }}
+              style={{ paddingLeft: isTabletOrDesktop ? 108 : 0 }}
               spacing={1}
             >
               <Grid item>

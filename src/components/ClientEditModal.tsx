@@ -11,6 +11,7 @@ import {
   TextField,
   Theme,
   Typography,
+  useMediaQuery,
 } from "@material-ui/core";
 import React, { FormEvent, useEffect, useState } from "react";
 import styled from "styled-components";
@@ -31,6 +32,8 @@ const EditModal = ({ open, onClose, clientData, onRefresh }: props) => {
   // Some needed things
   const [isSubmitting, setIsSubmitting] = useState(false);
   const {enqueueSnackbar} = useSnackbar();
+  const isTabletOrDesktop = useMediaQuery('(min-width:600px)');
+  const isSmallestMedia = useMediaQuery('(max-width:280px)');
 
   // Input States
   const [company, setCompany] = useState("");
@@ -188,13 +191,14 @@ const EditModal = ({ open, onClose, clientData, onRefresh }: props) => {
     createStyles({
       paper: {
         position: "absolute",
-        width: 635,
+        width: isTabletOrDesktop ? 635 : isSmallestMedia ? 264 : 350,
         height: 555,
         backgroundColor: theme.palette.background.paper,
         border: "none",
         borderRadius: "10px",
         padding: theme.spacing(2, 4, 0),
         outline: "none !important",
+        overflowY: "auto",
       },
       dialog: {
         minHeight: "666px",
